@@ -6,7 +6,7 @@
 
     <color name="white">#FFF</color>
     <color name="black">#000</color>
-    <color name="grey_very_dark">#00796B</color>
+    <color name="grey_very_dark">#009688</color>
     <color name="grey_dark">#222</color>
     <color name="grey_med_dark">#333</color>
     <color name="grey_light">#212121</color>

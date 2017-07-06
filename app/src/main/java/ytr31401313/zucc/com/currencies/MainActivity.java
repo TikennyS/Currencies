@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private Spinner mForSpinner,mHomSpinner;
     private String[] mCurrencies;
     private Button mHistory;
+    private Button mclcHistory;
 
     public static final String FOR = "FOR_CURRENCY";
     public static final String HOM = "HOM_CURRENCY";
@@ -63,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        SQLiteDatabase db = openOrCreateDatabase("History.db", Context.MODE_PRIVATE, null);
+        final SQLiteDatabase db = openOrCreateDatabase("History.db", Context.MODE_PRIVATE, null);
         db.execSQL("CREATE TABLE IF NOT EXISTS history (id integer primary key autoincrement,ForCode varchar(20),HomCode varchar(20),time varchar(30))");
 
         super.onCreate(savedInstanceState);
@@ -75,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         mForSpinner = (Spinner)findViewById(R.id.spn_for);
         mHomSpinner = (Spinner)findViewById(R.id.spn_hom);
         mHistory = (Button)findViewById(R.id.btn_his);
+        mclcHistory = (Button)findViewById(R.id.btn_clchis);
         final ArrayList<String> arrayList = ((ArrayList<String>)getIntent().getSerializableExtra(SplashActivity.KEY_ARRAYLIST));
         Collections.sort(arrayList);
         mCurrencies = arrayList.toArray(new String[arrayList.size()]);
@@ -115,6 +117,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this,HistoryActivity.class);
                 startActivity(intent);
+            }
+        });
+
+        mclcHistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                db.execSQL("delete from history");
+                Toast toast = Toast.makeText(MainActivity.this, "清除成功", Toast.LENGTH_SHORT);
+                toast.show();
             }
         });
 
