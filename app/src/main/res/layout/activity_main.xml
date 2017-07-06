@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/colorAccent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="30"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/label.curr"
+            android:text="外币" />
+
+        <Spinner
+            android:id="@+id/spn_for"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_weight="30"
+            android:gravity="top" />
+
+        <TextView
+            style="@style/label.desc"
+            android:text="在此输入外币金额：" />
+    </LinearLayout>
+
+    <LinearLayout
+        style="@style/layout_back">
+
+        <EditText
+            android:id="@+id/edt_amount"
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="6dp"
+            android:layout_marginRight="6dp"
+            android:background="#F5F5F5"
+            android:digits="0123456789."
+            android:gravity="center_vertical"
+            android:inputType="numberDecimal"
+            android:textColor="@color/black"
+            android:textSize="30sp">
+        </EditText>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_gravity="center"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_calc"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="10"
+            android:background="@drawable/btn_radius"
+            android:text="转换"
+            android:textColor="@color/white"
+            android:shadowRadius="45"/>
+
+        <Button
+            android:id="@+id/btn_his"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="10"
+            android:text="历史纪录"
+            android:textColor="@color/white"
+            android:background="@drawable/btn_radius" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="30"
+        android:orientation="vertical">
+
+        <TextView
+            android:text="本国货币"
+            style="@style/label.curr"/>
+
+        <Spinner
+            android:id="@+id/spn_hom"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="8dp"
+            android:layout_weight="30"
+            android:gravity="top" />
+
+        <TextView
+            android:text="本国货币计算结果："
+            style="@style/label.desc"/>
+    </LinearLayout>
+
+    <LinearLayout
+        style="@style/layout_back">
+
+        <TextView
+            android:id="@+id/txt_converted"
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="#F5F5F5"
+            android:gravity="center_vertical"
+            android:textColor="@color/black"
+            android:textSize="30sp"
+            android:typeface="normal" />
+    </LinearLayout>
+</LinearLayout>
