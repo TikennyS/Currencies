@@ -10,7 +10,7 @@
     <color name="grey_dark">#222</color>
     <color name="grey_med_dark">#333</color>
     <color name="grey_light">#212121</color>
-    <color name="turquoise">#ff22e9ff</color>
+    <color name="turquoise">#000000</color>
     <color name="flat_green">#ff1a51f4</color>
 
 </resources>

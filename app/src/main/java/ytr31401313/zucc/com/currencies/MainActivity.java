@@ -15,8 +15,10 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -26,7 +28,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,7 +47,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private Spinner mForSpinner,mHomSpinner;
     private String[] mCurrencies;
     private Button mHistory;
-    private Button mclcHistory;
+    private Button mReset;
+    private Double mCYNRate;
 
     public static final String FOR = "FOR_CURRENCY";
     public static final String HOM = "HOM_CURRENCY";
@@ -57,16 +59,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public static final String RATES = "rates";
     public static final String URL_BASE = "http://openexchangerates.org/api/latest.json?app_id=";
     //used to format data from openexchangerates.org
-    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,##0.00");
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,##0.000");
 
     public int nFor;
     public int nHom;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        final SQLiteDatabase db = openOrCreateDatabase("History.db", Context.MODE_PRIVATE, null);
-        db.execSQL("CREATE TABLE IF NOT EXISTS history (id integer primary key autoincrement,ForCode varchar(20),HomCode varchar(20),time varchar(30))");
-
+        final SQLiteDatabase db =openOrCreateDatabase("History.db", Context.MODE_PRIVATE, null);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         mForSpinner = (Spinner)findViewById(R.id.spn_for);
         mHomSpinner = (Spinner)findViewById(R.id.spn_hom);
         mHistory = (Button)findViewById(R.id.btn_his);
-        mclcHistory = (Button)findViewById(R.id.btn_clchis);
+        mReset = (Button)findViewById(R.id.btn_reset);
         final ArrayList<String> arrayList = ((ArrayList<String>)getIntent().getSerializableExtra(SplashActivity.KEY_ARRAYLIST));
         Collections.sort(arrayList);
         mCurrencies = arrayList.toArray(new String[arrayList.size()]);
@@ -120,17 +120,39 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         });
 
-        mclcHistory.setOnClickListener(new View.OnClickListener() {
+        mReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                db.execSQL("delete from history");
-                Toast toast = Toast.makeText(MainActivity.this, "清除成功", Toast.LENGTH_SHORT);
+                db.execSQL("delete from CNY_Rate");
+                Toast toast = Toast.makeText(MainActivity.this, "重置成功", Toast.LENGTH_SHORT);
                 toast.show();
             }
         });
 
+        final Handler handler=new Handler();
+        Runnable runnable=new Runnable() {
+            @Override
+            public void run() {
+                // TODO Auto-generated method stub
+                //要做的事情
+                new CurrencyGetTask().execute(URL_BASE+mKey);
+                handler.postDelayed(this, 600000);
+            }
+        };
+        handler.postDelayed(runnable, 600000);//每10分钟执行一次runnable.
+
+        //创建数据库及两张表
+        db.execSQL("CREATE TABLE IF NOT EXISTS history (id integer primary key autoincrement,ForCode varchar(20),HomCode varchar(20),time varchar(30))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS CNY_Rate (id integer primary key autoincrement,CNY varchar(20),Rate double,time varchar(30))");
+
 
     }
+
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.menu_main,menu);
+        return true;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -140,6 +162,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case R.id.mnu_codes:
                 launchBrowser(SplashActivity.URL_CODES);
+                break;
+            case R.id.mnu_chart:
+                Intent intent = new Intent(MainActivity.this,ChartActivity.class);
+                startActivity(intent);
                 break;
             case R.id.mnu_exit:
                 finish();
@@ -168,7 +194,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
@@ -189,7 +214,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         mConvertedTextView.setText("");
 
     }
-
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
@@ -237,7 +261,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         return  properties.getProperty(keyName);
 
     }
-
 
     //转换
     private class CurrencyConverterTask extends AsyncTask<String,Void,JSONObject> {
@@ -287,6 +310,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     dCalculated = Double.parseDouble(strAmount) * jsonRates.getDouble(strHomCode)
                             / jsonRates.getDouble(strForCode);
                 }
+
+                mCYNRate = jsonRates.getDouble("CNY");
+
             } catch (JSONException e) {
                 Toast.makeText(
                         MainActivity.this,
@@ -300,13 +326,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             mConvertedTextView.setText(DECIMAL_FORMAT.format(dCalculated) + " " + strHomCode);
             progressDialog.dismiss();
 
-            save();
+            savehistory();
+            //saverate();
         }
 
     }
 
-    //保存数据
-    private void save(){
+    //保存转换数据
+    private void savehistory(){
 
         boolean result = false;
 
@@ -316,8 +343,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         //创建一张表
         String sql = "select count(*) as c from sqlite_master where type ='table' and name ='history' ";
+
         Cursor cursor = db.rawQuery(sql, null);
-        cursor.moveToFirst();
         if(cursor.moveToFirst()){
             int count = cursor.getInt(0);
             if(count>0){
@@ -325,12 +352,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         }
 
-        SimpleDateFormat formatter = new SimpleDateFormat ("yyyy年MM月dd日    HH:mm:ss     ");
+        SimpleDateFormat formatter = new SimpleDateFormat ("yyyy年MM月dd日 HH:mm:ss");
         Date curDate = new Date(System.currentTimeMillis());//获取当前时间
         String str = formatter.format(curDate);
 
         if (!result) {
-            db.execSQL("CREATE TABLE IF NOT EXISTS history (id integer primary key autoincrement,ForCode varchar(20),HomCode varchar(20),time varchar(30))");
             ContentValues values =new ContentValues();
             values.put("ForCode",mAmountEditText.getText().toString()+" "+extractCodeFromCurrency(mCurrencies[mForSpinner.getSelectedItemPosition()]));
             values.put("HomCode",mConvertedTextView.getText().toString());
@@ -349,6 +375,88 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
+    //定时获取
+    private class CurrencyGetTask extends AsyncTask<String,Void,JSONObject> {
 
+        @Override
+        protected void onPreExecute() {
+        }
+        @Override
+        protected JSONObject doInBackground(String... params) {
+            return new JSONParser().getJSONFromUrl(params[0]);
+        }
+        @Override
+        protected void onPostExecute(JSONObject jsonObject) {
+
+            try {
+                if (jsonObject == null){
+                    throw new JSONException("no data available.");
+                }
+                JSONObject jsonRates = jsonObject.getJSONObject(RATES);
+
+                mCYNRate = Double.valueOf(DECIMAL_FORMAT.format(Double.parseDouble(String.valueOf(jsonRates.getDouble("CNY")))));
+            } catch (JSONException e) {
+                Toast.makeText(
+                        MainActivity.this,
+                        "There's been a JSON exception: " + e.getMessage(),
+                        Toast.LENGTH_LONG
+                ).show();
+                mConvertedTextView.setText("");
+                e.printStackTrace();
+            }
+            saverate();
+        }
+
+    }
+
+    //保存汇率
+    private void saverate(){
+
+        boolean result = false;
+
+        //创建数据库
+        SQLiteDatabase db = openOrCreateDatabase("History.db", Context.MODE_PRIVATE, null);
+
+        String sql = "select count(*) as c from sqlite_master where type ='table' and name ='CNY_Rate' ";
+        Cursor cursor = db.rawQuery(sql, null);
+
+        if (cursor.moveToFirst()){
+            int count = cursor.getInt(0);
+            if(count>0){
+                result = true;
+            }
+        }
+
+        SimpleDateFormat formatter = new SimpleDateFormat ("yyyy年MM月dd日 HH:mm:ss");
+        Date curDate = new Date(System.currentTimeMillis());//获取当前时间
+        String str = formatter.format(curDate);
+
+        if (!result) {
+            ContentValues values =new ContentValues();
+            values.put("CNY","CNY");
+            values.put("Rate",mCYNRate);
+            values.put("time",str);
+            db.insert("CNY_Rate",null,values);
+            values.clear();
+        }else {
+            Log.i("+++++++++++","已经创建了，无需再创建");
+
+            //String[] data = {mCYNRate.toString()};
+            //sql = "select count(*) as c from CNY_Rate where Rate =? ";
+            //cursor = db.rawQuery(sql,data, null);
+
+            //if(cursor.moveToFirst()){
+                //int count = cursor.getInt(0);
+                //if(count==0){
+                    ContentValues values =new ContentValues();
+                    values.put("CNY","CNY");
+                    values.put("Rate",mCYNRate);
+                    values.put("time",str);
+                    db.insert("CNY_Rate",null,values);
+                    values.clear();
+               // }
+            //}
+        }
+    }
 
 }

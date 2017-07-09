@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorAccent">
+    android:background="#DDF0ED">
 
     <SearchView
         android:id="@+id/search_view"
@@ -12,10 +12,18 @@
         android:layout_marginRight="16dp"
         android:queryHint="请输入搜索内容"
         android:iconifiedByDefault="false"></SearchView>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="16dp"
+        android:text="编号           外币              本国货币              时间"/>
     <ListView
         android:id="@+id/list_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        ></ListView>
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp"></ListView>
 
 </LinearLayout>

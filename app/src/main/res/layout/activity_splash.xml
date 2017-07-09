@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:text="欢迎使用"
         android:textSize="30sp"
-        android:textColor="#fff"
+        android:textColor="@color/black"
         android:alpha="0.87"/>
 </LinearLayout>
 
