@@ -65,12 +65,6 @@ public class ChartView extends View{
         else if(mRates.size()==1)
             Log.i("+++++++++++","数据太少，无法创建折线图");
         else {
-
-            int limit = mRates.size()+100;
-            
-
-            for (int i = 100; i < limit; i = i + 100) {
-                limit = limit+100;
                 for(int j = 0;j<mRates.size();j++) {
                     int limit2 = 100;
                     p.setColor(Color.BLUE);// 设置蓝色
@@ -89,9 +83,6 @@ public class ChartView extends View{
                     else
                         canvas.drawText(mRates.get(j).toString(),limit2+j*20,1000-(Float.valueOf(mRates.get(j).toString())*1000-6600)*2,p);
                 }
-                Log.i("+++++++++++","绘制完成");
-                break;
-            }
         }
 
     }
