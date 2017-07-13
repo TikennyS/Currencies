@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public static final String RATES = "rates";
     public static final String URL_BASE = "http://openexchangerates.org/api/latest.json?app_id=";
     //used to format data from openexchangerates.org
-    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,##0.000");
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,##0.00000");
 
     public int nFor;
     public int nHom;
@@ -124,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             public void onClick(View view) {
                 db.execSQL("delete from CNY_Rate");
+                db.execSQL("update sqlite_sequence SET seq = 0 where name ='CNY_Rate'");
                 Toast toast = Toast.makeText(MainActivity.this, "重置成功", Toast.LENGTH_SHORT);
                 toast.show();
             }
@@ -136,10 +137,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 // TODO Auto-generated method stub
                 //要做的事情
                 new CurrencyGetTask().execute(URL_BASE+mKey);
-                handler.postDelayed(this, 600000);
+                handler.postDelayed(this, 1800000);
             }
         };
-        handler.postDelayed(runnable, 600000);//每10分钟执行一次runnable.
+        handler.postDelayed(runnable, 1800000);//每30分钟执行一次runnable.
 
         //创建数据库及两张表
         db.execSQL("CREATE TABLE IF NOT EXISTS history (id integer primary key autoincrement,ForCode varchar(20),HomCode varchar(20),time varchar(30))");

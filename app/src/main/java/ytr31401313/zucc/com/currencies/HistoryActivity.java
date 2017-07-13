@@ -39,7 +39,6 @@ public class HistoryActivity extends AppCompatActivity {
 
         mListView = (ListView) findViewById(R.id.list_view);
         mSearchView = (SearchView) findViewById(R.id.search_view);
-
         showlist();
 
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {

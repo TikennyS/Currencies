@@ -11,19 +11,19 @@
     <item
         android:id="@+id/mnu_invert"
         android:orderInCategory="200"
-        android:title="invert codes"
+        android:title="位置互换"
         app:showAsAction="never"/>
 
     <item
         android:id="@+id/mnu_chart"
         android:orderInCategory="200"
-        android:title="search charts"
+        android:title="汇率变化"
         app:showAsAction="never"/>
 
     <item
         android:id="@+id/mnu_exit"
         android:orderInCategory="300"
-        android:title="exit"
+        android:title="退出"
         app:showAsAction="never"/>
 
 </menu>

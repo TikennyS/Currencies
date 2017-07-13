@@ -14,7 +14,6 @@ import java.util.ArrayList;
 /**
  * Created by yangzimu on 2017/7/5.
  */
-
 public class ChartView extends View{
 
     private ArrayList<Double> mRates = new ArrayList<>();
@@ -45,16 +44,22 @@ public class ChartView extends View{
 
         p.setStrokeWidth(5);
         p.setTextSize(50);
-        canvas.drawText("1:50比例尺", 100, 150, p);// 画文本
 
         p.setColor(Color.BLUE);// 设置蓝色
         p.setTextSize(80);
-        canvas.drawText("Y轴", 150, 300, p);
-        canvas.drawText("X轴", 900, 900, p);
+        canvas.drawText("汇率", 150, 300, p);
+        canvas.drawText("时间", 900, 900, p);
         canvas.drawLine(100, 300, 100, 800, p);// 画线 Y坐标
         canvas.drawLine(100, 800, 1000, 800, p);// 画线 X坐标
 
+
         p.setTextSize(25);//定义字体大小
+        canvas.drawLine(100,400,1000,400,p); //7.0上限
+        canvas.drawText("6.9", 50, 400, p);
+
+        canvas.drawText("6.7", 60, 800+10, p);
+
+
         if(mRates.isEmpty())
             Log.i("+++++++++++","数据为空，无法创建折线图");
         else if(mRates.size()==1)
@@ -62,20 +67,27 @@ public class ChartView extends View{
         else {
 
             int limit = mRates.size()+100;
+            
 
             for (int i = 100; i < limit; i = i + 100) {
                 limit = limit+100;
                 for(int j = 0;j<mRates.size();j++) {
                     int limit2 = 100;
                     p.setColor(Color.BLUE);// 设置蓝色
-                    canvas.drawText(mTimes.get(j).substring(9), limit2+j*150, 850, p); //X坐标值
+                    canvas.rotate(90,limit2+j*20, 850);
+                    canvas.drawText(mTimes.get(j).substring(8), limit2+j*20, 850, p); //X坐标值
+                    canvas.rotate(-90,limit2+j*20, 850);
                     if (j<mRates.size()-1) {
+                        p.setColor(Color.RED);
+                        p.setStrokeWidth(10);
+                        canvas.drawPoint(limit2+j*20,1000-(Float.valueOf(mRates.get(j).toString())*1000-6600)*2,p);
                         p.setColor(Color.BLACK);// 设置黑色
-                        canvas.drawLine(limit2+j*150, 800-Float.valueOf(mRates.get(j).toString())*50, limit2+(j+1)*150, 800-Float.valueOf(mRates.get(j + 1).toString())*50, p); //画线
-                        canvas.drawText(mRates.get(j).toString(),limit2+j*150, Float.valueOf(mRates.get(j).toString())*50+50,p);
+                        p.setStrokeWidth(5);
+                        canvas.drawLine(limit2+j*20, 1000-(Float.valueOf(mRates.get(j).toString())*1000-6600)*2, limit2+(j+1)*20, 1000-(Float.valueOf(mRates.get(j + 1).toString())*1000-6600)*2, p); //画线
+                       // canvas.drawText(mRates.get(j).toString(),limit2+j*20, Float.valueOf(mRates.get(j).toString())*50+50,p);
                     }
                     else
-                        canvas.drawText(mRates.get(j).toString(),limit2+j*150, 800-Float.valueOf(mRates.get(j).toString())*50-50,p);
+                        canvas.drawText(mRates.get(j).toString(),limit2+j*20,1000-(Float.valueOf(mRates.get(j).toString())*1000-6600)*2,p);
                 }
                 Log.i("+++++++++++","绘制完成");
                 break;
